@@ -1,6 +1,6 @@
 # Учебный проект «Код и Магия» [![Build status][travis-image]][travis-url]
 
-* Студент: [ToX1c](https://up.htmlacademy.ru/javascript/11/user/15565).
+* Студент: [Антон Лапшин](https://up.htmlacademy.ru/javascript/11/user/15565).
 
 ---
 
