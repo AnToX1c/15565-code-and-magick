@@ -1,6 +1,5 @@
 'use strict';
 var max = -1;
-var arr = [];
 var i = 0;
 
 var getMaxElement = function (arr) {
@@ -20,7 +19,7 @@ window.renderStatistics = function (ctx, names, times) {
   var columnHeight = 0;
   var maxScore = getMaxElement(times);
   var myHistogramColor = 'rgba(255, 0, 0, 1)';
-  var histogramColor =  function () {
+  var histogramColor = function () {
     return 'rgba(0, 0, 255, ' + Math.random() + ')';
   };
 
@@ -36,7 +35,7 @@ window.renderStatistics = function (ctx, names, times) {
   ctx.fillText('Список результатов:', 230, 50);
   for (i = 0; i < times.length; i++) {
     score = Math.round(times[i]);
-    if (names[i] == 'Вы') {
+    if (names[i] === 'Вы') {
       ctx.fillStyle = myHistogramColor;
     } else {
       ctx.fillStyle = histogramColor();
