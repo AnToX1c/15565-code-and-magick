@@ -2,9 +2,9 @@
 
 (function () {
   var setup = document.querySelector('.setup');
-  var setupUserPicHandler = setup.querySelector('.setup-user-pic');
+  var setupUserPic = setup.querySelector('.setup-user-pic');
 
-  var onUserPicHandler = function (evt) {
+  var onSetupUserPicMouseDown = function (evt) {
     evt.preventDefault();
     var startCoords = {
       x: evt.clientX,
@@ -34,5 +34,5 @@
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   };
-  setupUserPicHandler.addEventListener('mousedown', onUserPicHandler);
+  setupUserPic.addEventListener('mousedown', onSetupUserPicMouseDown);
 })();

@@ -126,7 +126,7 @@
     changeWizardItemColor(evt);
   });
 
-  var colorizeArtifactselements = function (color) {
+  var colorizeArtifactsElements = function (color) {
     artifactsDropZone.querySelectorAll('.setup-artifacts-cell').forEach(function (elem) {
       if (elem.childNodes.length < 1) {
         elem.style.outline = color;
