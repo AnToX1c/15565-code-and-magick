@@ -140,7 +140,7 @@
     if (evt.target.tagName.toLowerCase() === 'img') {
       draggedItem = evt.target;
       evt.dataTransfer.setData('text/plain', evt.target.alt);
-      colorizeArtifactselements('2px dashed red');
+      colorizeArtifactsElements('2px dashed red');
     }
   });
 
@@ -154,7 +154,7 @@
     if (evt.target.childNodes.length === 0 && evt.target.parentElement.childNodes.length > 2) {
       evt.target.appendChild(draggedItem.cloneNode(true));
     }
-    colorizeArtifactselements('none');
+    colorizeArtifactsElements('none');
     evt.preventDefault();
   });
   artifactsDropZone.addEventListener('dragenter', function (evt) {
@@ -170,7 +170,7 @@
     evt.preventDefault();
   });
   artifactsShop.addEventListener('dragend', function (evt) {
-    colorizeArtifactselements('none');
+    colorizeArtifactsElements('none');
     evt.preventDefault();
   });
 })();
