@@ -59,6 +59,9 @@
   var setupWizard = setupPlayer.querySelector('.setup-wizard');
   var similarListElement = document.querySelector('.setup-similar-list');
   var similarWizardTemplate = document.querySelector('#similar-wizard-template').content.querySelector('.setup-similar-item');
+  var artifactsShop = setup.querySelector('.setup-artifacts-shop');
+  var draggedItem = null;
+  var artifactsDropZone = setup.querySelector('.setup-artifacts');
 
   similarListElement.appendChild(renderSimilarWizards(4));
   document.querySelector('.setup-similar').classList.remove('hidden');
@@ -83,12 +86,18 @@
     }
   };
 
+  var startCoordinates = {
+    myCoordX: '50%',
+    myCoordY: '80px'
+  };
   var openPopup = function () {
     setup.classList.remove('hidden');
     document.addEventListener('keydown', onPopupEscPress);
   };
 
   var closePopup = function () {
+    setup.style.top = startCoordinates.myCoordY;
+    setup.style.left = startCoordinates.myCoordX;
     setup.classList.add('hidden');
     document.removeEventListener('keydown', onPopupEscPress);
   };
@@ -115,5 +124,53 @@
 
   setupPlayer.addEventListener('click', function (evt) {
     changeWizardItemColor(evt);
+  });
+
+  var colorizeArtifactsElements = function (color) {
+    artifactsDropZone.querySelectorAll('.setup-artifacts-cell').forEach(function (elem) {
+      if (elem.childNodes.length < 1) {
+        elem.style.outline = color;
+      } else {
+        elem.style.outline = 'none';
+      }
+    });
+  };
+
+  artifactsShop.addEventListener('dragstart', function (evt) {
+    if (evt.target.tagName.toLowerCase() === 'img') {
+      draggedItem = evt.target;
+      evt.dataTransfer.setData('text/plain', evt.target.alt);
+      colorizeArtifactsElements('2px dashed red');
+    }
+  });
+
+  artifactsDropZone.addEventListener('dragover', function (evt) {
+    evt.preventDefault();
+    return false;
+  });
+
+  artifactsDropZone.addEventListener('drop', function (evt) {
+    evt.target.style.backgroundColor = '';
+    if (evt.target.childNodes.length === 0 && evt.target.parentElement.childNodes.length > 2) {
+      evt.target.appendChild(draggedItem.cloneNode(true));
+    }
+    colorizeArtifactsElements('none');
+    evt.preventDefault();
+  });
+  artifactsDropZone.addEventListener('dragenter', function (evt) {
+    if (evt.target.childNodes.length < 1 && evt.target.parentElement.childNodes.length > 2) {
+      evt.target.style.backgroundColor = 'yellow';
+    } else {
+      evt.target.style.backgroundColor = '';
+    }
+    evt.preventDefault();
+  });
+  artifactsDropZone.addEventListener('dragleave', function (evt) {
+    evt.target.style.backgroundColor = '';
+    evt.preventDefault();
+  });
+  artifactsShop.addEventListener('dragend', function (evt) {
+    colorizeArtifactsElements('none');
+    evt.preventDefault();
   });
 })();
