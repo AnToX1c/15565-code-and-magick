@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var createRequest = function (onLoad, onError, METHOD, URL, data) {
+  var createRequest = function (onLoad, onError, method, url, data) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.addEventListener('load', function () {
@@ -27,23 +27,23 @@
       onError('Произошла ошибка соединения');
     });
     xhr.addEventListener('timeout', function () {
-      onError('Запрос не успел выполнится за ' + xhr.timeout + 'мс');
+      onError('Запрос не успел выполнится за ' + xhr.TIMEOUT + 'мс');
     });
-    xhr.timeout = 25000;
-    xhr.open(METHOD, URL);
+    xhr.TIMEOUT = 25000;
+    xhr.open(method, url);
     xhr.send(data);
   };
 
   window.backend = {
     load: function (onLoad, onError) {
-      var METHOD = 'GET';
-      var URL = 'https://1510.dump.academy/code-and-magick/data';
-      createRequest(onLoad, onError, METHOD, URL);
+      var method = 'GET';
+      var url = 'https://1510.dump.academy/code-and-magick/data';
+      createRequest(onLoad, onError, method, url);
     },
     save: function (data, onLoad, onError) {
-      var METHOD = 'POST';
-      var URL = 'https://1510.dump.academy/code-and-magick/';
-      createRequest(onLoad, onError, METHOD, URL, data);
+      var method = 'POST';
+      var url = 'https://1510.dump.academy/code-and-magick/';
+      createRequest(onLoad, onError, method, url, data);
     }
   };
 })();
