@@ -4,32 +4,15 @@
   var ESC_KEYCODE = 27;
   var ENTER_KEYCODE = 13;
   var NUMBER_OF_SIMILAR_WIZARDS = 4;
-
-  window.getRandomArrayItem = function (arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-  };
-
+  var currentCoatColor = 'rgb(101, 137, 164)';
+  var currentEyesColor = 'black';
+  var rankedWizards = [];
   var wizard = {
     COATCOLORS: ['rgb(101, 137, 164)', 'rgb(241, 43, 107)', 'rgb(146, 100, 161)', 'rgb(56, 159, 117)', 'rgb(215, 210, 55)', 'rgb(0, 0, 0)'],
     EYESCOLORS: ['black', 'red', 'blue', 'yellow', 'green'],
     FIREBALLCOLORS: ['#ee4830', '#30a8ee', '#5ce6c0', '#e848d5', '#e6e848']
   };
-
-  var renderWizardElements = function (regularWizard) {
-    var wizardElement = similarWizardTemplate.cloneNode(true);
-    wizardElement.querySelector('.setup-similar-label').textContent = regularWizard.name;
-    wizardElement.querySelector('.wizard-coat').style.fill = regularWizard.colorCoat;
-    wizardElement.querySelector('.wizard-eyes').style.fill = regularWizard.colorEyes;
-    return wizardElement;
-  };
-
-  var renderSimilarWizards = function (wizards) {
-    var fragment = document.createDocumentFragment();
-    for (var i = 0; i < NUMBER_OF_SIMILAR_WIZARDS; i++) {
-      fragment.appendChild(renderWizardElements(window.getRandomArrayItem(wizards)));
-    }
-    return fragment;
-  };
+  var prevTimer;
 
   var setup = document.querySelector('.setup');
   var form = setup.querySelector('.setup-wizard-form');
@@ -47,7 +30,29 @@
   var draggedItem = null;
   var artifactsDropZone = setup.querySelector('.setup-artifacts');
 
-  document.querySelector('.setup-similar').classList.remove('hidden');
+  var startCoordinates = {
+    myCoordX: '50%',
+    myCoordY: '80px'
+  };
+
+  var renderWizardElements = function (regularWizard) {
+    var wizardElement = similarWizardTemplate.cloneNode(true);
+    wizardElement.querySelector('.setup-similar-label').textContent = regularWizard.name;
+    wizardElement.querySelector('.wizard-coat').style.fill = regularWizard.colorCoat;
+    wizardElement.querySelector('.wizard-eyes').style.fill = regularWizard.colorEyes;
+    return wizardElement;
+  };
+
+  var renderSimilarWizards = function (wizards) {
+    var fragment = document.createDocumentFragment();
+    while (similarListElement.firstChild) {
+      similarListElement.removeChild(similarListElement.firstChild);
+    }
+    for (var i = 0; i < NUMBER_OF_SIMILAR_WIZARDS; i++) {
+      fragment.appendChild(renderWizardElements(wizards[i]));
+    }
+    return fragment;
+  };
 
   var onPopupEscPress = function (evt) {
     if (evt.keyCode === ESC_KEYCODE) {
@@ -69,15 +74,11 @@
     }
   };
 
-  var startCoordinates = {
-    myCoordX: '50%',
-    myCoordY: '80px'
-  };
   var openPopup = function () {
     setup.classList.remove('hidden');
     document.addEventListener('keydown', onPopupEscPress);
     if (similarListElement.childNodes.length <= 1) {
-      window.backend.load(onWizardsLoad, onError);
+      window.backend.load(updateSimilarWizards, onError);
     }
     form.addEventListener('submit', onSubmit);
   };
@@ -90,6 +91,8 @@
     document.removeEventListener('keydown', onPopupEscPress);
   };
 
+  document.querySelector('.setup-similar').classList.remove('hidden');
+
   setupOpen.addEventListener('click', function () {
     openPopup();
   });
@@ -100,8 +103,19 @@
   });
   setupClose.addEventListener('keydown', onPopupEnterPress);
 
+  var getCurrentColors = function (element, color) {
+    if (element === coat) {
+      currentCoatColor = color;
+    }
+    if (element === eyes) {
+      currentEyesColor = color;
+    }
+  };
+
   var fillElement = function (element, color) {
     element.style.fill = color;
+    getCurrentColors(element, color);
+    debounce(updateSimilarWizards);
   };
 
   var changeElementBackground = function (element, color) {
@@ -114,11 +128,7 @@
 
   var colorizeArtifactsElements = function (color) {
     artifactsDropZone.querySelectorAll('.setup-artifacts-cell').forEach(function (elem) {
-      if (elem.childNodes.length < 1) {
-        elem.style.outline = color;
-      } else {
-        elem.style.outline = 'none';
-      }
+      elem.style.outline = (elem.childNodes.length < 1) ? color : 'none';
     });
   };
 
@@ -144,11 +154,7 @@
     evt.preventDefault();
   });
   artifactsDropZone.addEventListener('dragenter', function (evt) {
-    if (evt.target.childNodes.length < 1 && evt.target.parentElement.childNodes.length > 2) {
-      evt.target.style.backgroundColor = 'yellow';
-    } else {
-      evt.target.style.backgroundColor = '';
-    }
+    evt.target.style.backgroundColor = (evt.target.childNodes.length < 1 && evt.target.parentElement.childNodes.length > 2) ? 'yellow' : '';
     evt.preventDefault();
   });
   artifactsDropZone.addEventListener('dragleave', function (evt) {
@@ -160,9 +166,11 @@
     evt.preventDefault();
   });
 
-  var onWizardsLoad = function (dataWizards) {
-    similarListElement.appendChild(renderSimilarWizards(dataWizards));
+  var updateSimilarWizards = function (dataWizards) {
+    rankedWizards = dataWizards || getRankedWizards(rankedWizards);
+    similarListElement.appendChild(renderSimilarWizards(rankedWizards));
   };
+
   var onSubmit = function (evt) {
     window.backend.save(new FormData(form), closePopup, onError);
     evt.preventDefault();
@@ -190,5 +198,25 @@
     document.querySelector('.errorMessage').querySelector('.setup-close').addEventListener('click', function (evt) {
       evt.target.parentElement.classList.add('hidden');
     });
+  };
+
+  var getRank = function (wiz) {
+    var rank = 0;
+    rank += (wiz.colorCoat === currentCoatColor) ? 2 : 0;
+    rank += (wiz.colorEyes === currentEyesColor) ? 1 : 0;
+    return rank;
+  };
+  var getRankedWizards = function (wizards) {
+    return wizards.sort(function (left, right) {
+      var rankDiff = getRank(right) - getRank(left);
+      return (rankDiff === 0) ? wizards.indexOf(left) - wizards.indexOf(right) : rankDiff;
+    });
+  };
+
+  var debounce = function (func) {
+    window.clearTimeout(prevTimer);
+    prevTimer = window.setTimeout(function () {
+      func();
+    }, 500);
   };
 })();

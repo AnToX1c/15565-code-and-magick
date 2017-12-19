@@ -1,22 +1,12 @@
 'use strict';
 
 (function () {
-  var getMaxElement = function (arr) {
-    var max = -1;
-    for (var i = 0; i <= arr.length - 1; i++) {
-      if (arr[i] > max) {
-        max = arr[i];
-      }
-    }
-    return max;
-  };
-
   window.renderStatistics = function (ctx, names, times) {
     var i = 0;
     var histogramHeight = 150;
     var histogramWidth = 40;
     var distanceBetweenHists = 50;
-    var maxScore = getMaxElement(times);
+    var maxScore = Math.max.apply(null, times);
     var myHistogramColor = 'rgba(255, 0, 0, 1)';
     var histogramColor = function () {
       return 'rgba(0, 0, 255, ' + Math.random() + ')';
