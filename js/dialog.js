@@ -2,7 +2,7 @@
 
 (function () {
   var setup = document.querySelector('.setup');
-  var setupUserPic = setup.querySelector('.setup-user-pic');
+  var setupUserPic = setup.querySelector('.upload input[type=file]');
 
   var onSetupUserPicMouseDown = function (evt) {
     evt.preventDefault();
@@ -11,8 +11,12 @@
       y: evt.clientY
     };
 
+    var dragged = false;
+
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
+      dragged = true;
+
       var shift = {
         x: startCoords.x - moveEvt.clientX,
         y: startCoords.y - moveEvt.clientY
@@ -29,6 +33,16 @@
       upEvt.preventDefault();
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
+
+      if (dragged) {
+        var onClickPreventDefault = function (clickEvt) {
+          clickEvt.preventDefault();
+          dragged = false;
+          setupUserPic.removeEventListener('click', onClickPreventDefault);
+        };
+        setupUserPic.addEventListener('click', onClickPreventDefault);
+      }
+
     };
 
     document.addEventListener('mousemove', onMouseMove);
